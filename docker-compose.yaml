@@ -7,7 +7,7 @@ services:
         source: ./data/db
         target: /data/db
   web:
-    image: tenlee/yapi:1.6.0 
+    image: tenlee/yapi:1.6.1
     links:
       - mongodb:mongodb
     ports:
