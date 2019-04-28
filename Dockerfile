@@ -8,34 +8,27 @@ FROM alpine:latest
 # - 克隆项目
 # - 采用自动化构建不考虑国内npm源了 , 可以降低初始化失败的概率
 # !! yapi 官方的内网部署教程: https://yapi.ymfe.org/devops/index.html
-COPY vendors /yapi/vendors
+# COPY vendors /yapi/vendors
+# 配置yapi的配置文件
+COPY config.json /yapi/
+COPY ./vendors /yapi/vendors
+# 复制执行脚本到容器的执行目录
+COPY entrypoint.sh /yapi/
+# 工作目录
+WORKDIR /yapi/
+
 RUN apk update \
   && apk add --no-cache  git nodejs npm bash python python-dev gcc libcurl make \
   && rm -rf /var/cache/apk/* \
+#&& cd /yapi && git clone --depth=1 https://github.com/YMFE/yapi.git vendors \
   && npm install -g ykit --registry https://registry.npm.taobao.org \
-  && npm install -g pm2@latest --registry https://registry.npm.taobao.org \
   && npm i -g node-gyp yapi-cli npm@latest --registry https://registry.npm.taobao.org \
   && cd /yapi/vendors && npm i --production --registry https://registry.npm.taobao.org \
+#&& cd /yapi &&  yapi plugin --name yapi-plugin-dingding \
   && npm cache clean -f
-# 工作目录
-WORKDIR /yapi/
-# 配置yapi的配置文件
-COPY config.json /yapi/
-# 复制执行脚本到容器的执行目录
-COPY entrypoint.sh /yapi/
+
 # 向外暴露的端口
 EXPOSE 3000
 
 # 配置入口为bash shell
 ENTRYPOINT ["/yapi/entrypoint.sh"]
-
-
-# `vim` : 编辑神器
-# `tar` : 解压缩
-# `make`: 编译依赖的
-# `gcc`:  GNU编译器套装
-# `python`: `python python-dev py-pip`这三个包包括了基本开发环境
-# `curl` 可以测试连接也能下载内容的命令行工具
-# `git` : 不用说了
-# `nodejs` : node
-# `nodejs-current-npm` : `alpine`Linux版本需要依赖这个版本,才能让`npm`识别到

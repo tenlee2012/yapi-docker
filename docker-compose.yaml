@@ -7,18 +7,21 @@ services:
         source: ./data/db
         target: /data/db
   web:
-    image: tenlee/yapi:1.6.2
+    #image: tenlee/yapi:1.7.0-dingding
+    image: tenlee/yapi:1.7.0
     #command: /bin/bash -c "[ ! -e /home/yapi/log/init.lock ] && npm run install-server && touch /home/yapi/log/init.lock; npm run start"
     entrypoint: /yapi/entrypoint.sh
+    depends_on:
+      - mongodb
     links:
       - mongodb:mongodb
     ports:
       - 3000:3000
     tty: true
     volumes:
-      - type: bind
-        source: ./config.json
-        target: /yapi/config.json
+      # - type: bind
+        # source: ./config.json
+        # target: /yapi/config.json
       - type: bind
         source: ./data/yapi
         target: /yapi/log
